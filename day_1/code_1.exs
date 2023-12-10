@@ -1,4 +1,4 @@
-file = elem(File.read("day_1/input_1.txt"), 1)
+file = elem(File.read("day_1/input.txt"), 1)
 
 array_file = String.split(file, "\n")
 
