@@ -19,6 +19,24 @@ defmodule Day3 do
     @neutral_char <> string <> @neutral_char
   end
 
+  def upper_only_dot?(line_index, array_file, start_index, length_num) do
+    unless line_index == 0 do
+      upper_line = embed_string(Enum.fetch!(array_file, line_index - 1))
+      contains_only_char_in_range?(upper_line, @neutral_char, start_index, start_index+length_num+1)
+    else
+      true
+    end
+  end
+
+  def lower_only_dot?(line_index, array_file, start_index, length_num) do
+    unless line_index == length(array_file)-1 do
+      lower_line = embed_string(Enum.fetch!(array_file, line_index + 1))
+      contains_only_char_in_range?(lower_line, @neutral_char, start_index, start_index+length_num+1)
+    else
+      true
+    end
+  end
+
   def add_valids() do
     array_file = read_file()
 
@@ -27,34 +45,32 @@ defmodule Day3 do
       line_string = elem(line, 0)
       nums_index = Regex.scan(~r/\d+/, line_string, return: :index)
       valid_nums_in_line = Enum.map(nums_index, fn start_end_index_array ->
+        # helper variables
         start_length_index = Enum.fetch!(start_end_index_array, 0)
         start_index = elem(start_length_index, 0)
         length_num = elem(start_length_index, 1)
         num = String.slice(line_string, start_index..start_index+length_num-1)
-
-        upper_only_dot? = unless line_index == 0 do
-          upper_line = embed_string(Enum.fetch!(array_file, line_index - 1))
-          contains_only_char_in_range?(upper_line, @neutral_char, start_index, start_index+length_num+1)
-        else
-          true
-        end
-        lower_only_dot? = unless line_index == length(array_file)-1 do
-          lower_line = embed_string(Enum.fetch!(array_file, line_index + 1))
-          contains_only_char_in_range?(lower_line, @neutral_char, start_index, start_index+length_num+1)
-        else
-          true
-        end
         embedded_line = embed_string(line_string)
+
+        # calculate around num
+        upper_only_dot? = upper_only_dot?(line_index, array_file, start_index, length_num)
+        lower_only_dot? = lower_only_dot?(line_index, array_file, start_index, length_num)
         left_dot? = ( String.at(embedded_line, start_index) == @neutral_char)
         right_dot? = ( String.at(embedded_line, start_index+length_num + 1) == @neutral_char )
+
+        # returns num if valid, 0 otherwise
         if left_dot? && right_dot? && upper_only_dot? && lower_only_dot? do
           0
         else
           elem(Integer.parse(num), 0)
         end
       end)
+
+      # sum every valid number in line
       Enum.sum(valid_nums_in_line)
     end)
+
+    # sum every line returned sum
     Enum.sum(line_sums)
   end
 
